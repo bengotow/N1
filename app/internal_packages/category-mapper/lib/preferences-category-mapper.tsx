@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  localized,
   AccountStore,
   CategoryStore,
   Category,
@@ -21,6 +22,7 @@ interface State {
   all: {
     [accountId: string]: Category[];
   };
+  containerFolderDefault: string;
 }
 
 export default class PreferencesCategoryMapper extends React.Component<
@@ -58,7 +60,9 @@ export default class PreferencesCategoryMapper extends React.Component<
         assignments[cat.accountId][cat.role] = cat;
       }
     }
-    return { assignments, all };
+
+    const containerFolderDefault = AccountStore.containerFolderDefaultGetter();
+    return { assignments, all, containerFolderDefault };
   }
 
   _onCategorySelection = async (account, role, category) => {
@@ -71,6 +75,10 @@ export default class PreferencesCategoryMapper extends React.Component<
       })
     );
   };
+
+  _updateContainerFolderDefault = () => {
+    Actions.updateContainerFolderDefault(this.state.containerFolderDefault);
+  }
 
   _renderRoleSection = (account, role) => {
     if (!account) return false;
@@ -106,6 +114,13 @@ export default class PreferencesCategoryMapper extends React.Component<
   render() {
     return (
       <div className="category-mapper-container">
+        <h6>{localized('Default Container Folder (folder/subfolder)')}</h6>
+        <input
+          type="text"
+          value={this.state.containerFolderDefault}
+          onBlur={e => this._updateContainerFolderDefault()}
+          onChange={e => this.setState({ containerFolderDefault: e.target.value })}
+        />
         {AccountStore.accounts().map(account => (
           <div key={account.id}>
             <div className="account-section-title">{account.label}</div>
